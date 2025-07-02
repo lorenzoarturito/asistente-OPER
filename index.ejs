@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asistente Documental | IA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #6b46c1 0%, #4299e1 100%);
+        }
+        .response-card {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navbar -->
+    <nav class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-robot text-2xl"></i>
+                <span class="text-xl font-semibold">Asistente IA</span>
+            </div>
+            <div class="text-sm opacity-80">
+                <i class="fas fa-bolt"></i> Powered by Groq
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido Principal -->
+    <main class="container mx-auto px-4 py-8 max-w-4xl">
+        <div class="bg-white rounded-xl response-card overflow-hidden">
+            <div class="gradient-bg px-6 py-4 text-white">
+                <h1 class="text-2xl font-bold"><i class="fas fa-search mr-2"></i> Consulta tus documentos</h1>
+                <p class="text-sm opacity-90 mt-1">Pregunta sobre cualquier contenido en tus archivos</p>
+            </div>
+
+            <div class="p-6 space-y-6">
+                <!-- Formulario de pregunta -->
+                <form action="/preguntar" method="POST">
+                    <div class="mb-4">
+                        <label for="pregunta" class="block text-gray-700 text-sm font-medium mb-2">
+                            <i class="fas fa-question-circle mr-1"></i> Tu pregunta:
+                        </label>
+                        <textarea 
+                            id="pregunta" 
+                            name="pregunta" 
+                            rows="4" 
+                            class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                            placeholder="Ej: ¿Qué dice la política sobre confidencialidad?..."
+                            required
+                        ></textarea>
+                    </div>
+                    <button 
+                        type="submit" 
+                        class="gradient-bg hover:opacity-90 text-white font-medium py-3 px-6 rounded-lg transition-all flex items-center justify-center"
+                    >
+                        <i class="fas fa-paper-plane mr-2"></i> Enviar Consulta
+                    </button>
+                </form>
+
+                <!-- Formulario de carga -->
+                <form action="/subir" method="POST" enctype="multipart/form-data" class="pt-4 border-t border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2"><i class="fas fa-upload mr-1"></i> Subir archivo (.txt)</h3>
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-4 sm:space-y-0">
+                        <input type="file" name="documento" accept=".txt" required
+                            class="block w-full text-sm text-gray-700 border border-gray-300 rounded-lg cursor-pointer focus:outline-none">
+                        <button type="submit"
+                            class="gradient-bg hover:opacity-90 text-white font-medium py-2 px-5 rounded-lg transition-all flex items-center justify-center">
+                            <i class="fas fa-cloud-upload-alt mr-2"></i> Subir
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Respuesta de IA -->
+            <% if (respuesta || error) { %>
+                <div class="border-t border-gray-200 p-6">
+                    <div class="flex items-center mb-3">
+                        <i class="fas fa-reply text-indigo-500 mr-2"></i>
+                        <h2 class="text-lg font-semibold text-gray-800">Respuesta:</h2>
+                    </div>
+                    
+                    <% if (error) { %>
+                        <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-4 rounded">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-exclamation-circle text-red-500"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-red-700"><%= error %></p>
+                                </div>
+                            </div>
+                        </div>
+                    <% } %>
+                    
+                    <% if (respuesta) { %>
+                        <div class="prose prose-indigo max-w-none">
+                            <p class="text-gray-700 whitespace-pre-wrap"><%= respuesta %></p>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-gray-100 text-sm text-gray-500">
+                            <i class="fas fa-info-circle mr-1"></i> Respuesta generada por IA
+                        </div>
+                    <% } %>
+                </div>
+            <% } %>
+
+            <!-- Lista de archivos -->
+            <% if (archivos && archivos.length) { %>
+                <div class="border-t border-gray-100 px-6 py-4">
+                    <h3 class="text-md font-semibold text-gray-700 mb-2"><i class="fas fa-folder-open mr-1"></i> Archivos cargados:</h3>
+                    <ul class="list-disc pl-5 text-sm text-gray-600">
+                        <% archivos.forEach(archivo => { %>
+                            <li><%= archivo %></li>
+                        <% }) %>
+                    </ul>
+                </div>
+            <% } %>
+        </div>
+
+        <div class="mt-8 text-center text-sm text-gray-500">
+            <p>Sistema de consulta documental v1.0</p>
+        </div>
+    </main>
+</body>
+</html>
